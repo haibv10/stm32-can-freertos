@@ -1,8 +1,3 @@
-/**
- * @file task_mq5.c
- * @brief MQ5 ADC averaging and fault reporting for each requested cycle.
- */
-
 #include "task_mq5.h"
 
 #include "task.h"
@@ -13,10 +8,6 @@
 
 static TaskHandle_t xMq5TaskHandle = NULL;
 
-/**
- * @brief Sample MQ5 on request and report the gas reading and sample validity.
- * @param[in] pvParameters Unused task argument.
- */
 static void prvMq5Task(void *pvParameters) {
     (void)pvParameters;
 
@@ -27,7 +18,6 @@ static void prvMq5Task(void *pvParameters) {
         }
         Mq5Sample_t sample = {.request_id = request_id};
         sample.valid = hal_mq5_read_average(TASK_MQ5_SAMPLES, &sample.gas_raw);
-        /* A full queue means CAN_TX gave up on this cycle; the sample is dropped. */
         (void)xQueueSend(xMq5Queue, &sample, pdMS_TO_TICKS(SENSOR_RESULT_TIMEOUT_MS));
     }
 }

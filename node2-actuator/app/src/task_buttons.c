@@ -1,8 +1,3 @@
-/**
- * @file task_buttons.c
- * @brief Periodic button polling and delivery of debounced presses to CONTROL.
- */
-
 #include "task_buttons.h"
 
 #include "task.h"
@@ -12,10 +7,6 @@
 #include "hal_buttons.h"
 #include "task_actuator.h"
 
-/**
- * @brief Scan the buttons periodically and publish one event mask per scan with new presses.
- * @param[in] pvParameters Unused task argument.
- */
 static void prvButtonsTask(void *pvParameters) {
     (void)pvParameters;
     TickType_t last_wake = xTaskGetTickCount();

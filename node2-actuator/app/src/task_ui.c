@@ -1,8 +1,3 @@
-/**
- * @file task_ui.c
- * @brief Periodic TFT rendering from the latest control snapshot.
- */
-
 #include "task_ui.h"
 
 #include "task.h"
@@ -12,10 +7,6 @@
 #include "app_time.h"
 #include "app_ui.h"
 
-/**
- * @brief Consume the most recent view and render the display at the frame interval.
- * @param[in] pvParameters Unused task argument.
- */
 static void prvUiTask(void *pvParameters) {
     (void)pvParameters;
     UiView_t view;
