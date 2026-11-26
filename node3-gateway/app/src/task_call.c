@@ -1,8 +1,3 @@
-/**
- * @file task_call.c
- * @brief Call state machine and call policy.
- */
-
 #include "task_call.h"
 
 #include <stdio.h>
@@ -72,10 +67,6 @@ static void on_command_ok(CallContext_t *ctx, AtCommandType_t command, TickType_
 static void on_command_failed(CallContext_t *ctx, AtCommandType_t command,
                               ModemEventType_t type, TickType_t now) {
     if (command == AT_CMD_DIAL) {
-        /*
-         * A late or failed ATD reply does not prove the modem is not ringing, so the call stays
-         * tracked: the 30 s cap and ATH on alarm clear still apply. ERROR/TX failure hang up now.
-         */
         ctx->state = CALL_IN_PROGRESS;
         ctx->hangup_requested = (type != MODEM_EVENT_TIMEOUT);
     } else {
@@ -85,7 +76,6 @@ static void on_command_failed(CallContext_t *ctx, AtCommandType_t command,
 
 static void handle_event(CallContext_t *ctx, const ModemEvent_t *event, TickType_t now) {
     if (event->type == MODEM_EVENT_RESET) {
-        /* A modem reboot drops any call; give it the boot time again before probing. */
         ctx->state = CALL_BOOT_WAIT;
         ctx->boot_started = now;
         ctx->command_pending = false;
@@ -108,7 +98,6 @@ static void handle_event(CallContext_t *ctx, const ModemEvent_t *event, TickType
     }
 
     if (!completes) {
-        /* An unsolicited error during a call leaves the call state unknown, so hang up. */
         if ((event->type == MODEM_EVENT_ERROR) && (ctx->state == CALL_IN_PROGRESS)) {
             ctx->hangup_requested = true;
         }
@@ -136,7 +125,6 @@ static void prvCallTask(void *argument) {
         }
 
         TickType_t now = xTaskGetTickCount();
-        /* The completion event is lost if the event queue was full; never wait on it forever. */
         if (ctx.command_pending && ((now - ctx.pending_since) >= ctx.pending_limit)) {
             ctx.command_pending = false;
             on_command_failed(&ctx, ctx.pending_command, MODEM_EVENT_TIMEOUT, now);
@@ -168,7 +156,6 @@ static void prvCallTask(void *argument) {
                 (void)snprintf(command, sizeof(command), "ATD%s;\r\n", APP_ALERT_PHONE);
                 if (enqueue_command(&ctx, AT_CMD_DIAL, command, MODEM_DIAL_TIMEOUT_MS)) {
                     ctx.call_attempted = true;
-                    /* The 30 s cap counts from dialing, not from the OK that may never come. */
                     ctx.dial_started = now;
                     ctx.hangup_requested = false;
                 }

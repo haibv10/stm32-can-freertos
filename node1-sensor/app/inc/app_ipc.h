@@ -1,8 +1,3 @@
-/**
- * @file app_ipc.h
- * @brief Application queue handles, message types and queue allocation.
- */
-
 #ifndef APP_IPC_H
 #define APP_IPC_H
 
@@ -12,7 +7,6 @@
 #include "FreeRTOS.h"
 #include "queue.h"
 
-/* request_id echoes the CAN_TX request so a late sample is never paired with a newer cycle. */
 typedef struct {
     uint32_t request_id;
     uint8_t temperature_c;
@@ -29,10 +23,6 @@ typedef struct {
 extern QueueHandle_t xDht11Queue;
 extern QueueHandle_t xMq5Queue;
 
-/**
- * @brief Create the FreeRTOS queues used to exchange application data.
- * @return true if all required queues were created; false on allocation failure.
- */
 bool app_ipc_init(void);
 
 #endif

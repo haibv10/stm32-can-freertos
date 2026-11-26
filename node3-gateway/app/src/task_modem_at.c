@@ -1,8 +1,3 @@
-/**
- * @file task_modem_at.c
- * @brief The only task that accesses the A7680C USART2 interface.
- */
-
 #include "task_modem_at.h"
 
 #include <string.h>
@@ -28,7 +23,6 @@ static void reset_reply(void) {
     reply[0] = '\0';
 }
 
-/* Keeps the unfinished last line, including its leading newline that the RDY marker needs. */
 static void drop_completed_lines(void) {
     const char *last_newline = strrchr(reply, '\n');
     if (last_newline == NULL) {
@@ -48,13 +42,6 @@ static void append_reply(uint8_t byte) {
     reply[reply_length] = '\0';
 }
 
-/**
- * @brief Classify buffered modem output and publish one event per recognized response.
- * @param[in] command_pending true while a sent command is waiting for its final response.
- * @param[in] pending_command Command the next final response belongs to.
- * @param[out] saw_reset Set to true if a modem reboot indication was received.
- * @return true if the pending command received its final response.
- */
 static bool parse_rx(bool command_pending, AtCommandType_t pending_command, bool *saw_reset) {
     bool completed = false;
     uint8_t byte;
@@ -78,7 +65,6 @@ static bool parse_rx(bool command_pending, AtCommandType_t pending_command, bool
             continue;
         }
 
-        /* Output after the final response is unsolicited, so CALL cannot pair it with a command. */
         publish_event(type, awaiting ? pending_command : AT_CMD_NONE);
         reset_reply();
         if (awaiting) {
@@ -103,7 +89,6 @@ static void prvModemAtTask(void *argument) {
     for (;;) {
         (void)ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(TASK_MODEM_AT_POLL_MS));
 
-        /* Bytes already received (RDY, NO CARRIER) are classified before a new command starts. */
         bool saw_reset = false;
         if (parse_rx(command_pending, pending_command, &saw_reset)) {
             command_pending = false;
@@ -123,14 +108,9 @@ static void prvModemAtTask(void *argument) {
         }
 
         if (modem_rebooting) {
-            /*
-             * Commands queued before CALL handled the reset would run untracked (an ATD would ring
-             * with no 30 s cap). CALL waits the same boot time, so nothing valid is dropped.
-             */
             while (xQueueReceive(xAtCmdQueue, &command, 0U) == pdPASS) {
             }
         } else if (!command_pending && xQueueReceive(xAtCmdQueue, &command, 0U) == pdPASS) {
-            /* A late "OK" from an earlier command must not satisfy the new one. */
             drop_completed_lines();
             if (!hal_a7680c_send(command.text)) {
                 publish_event(MODEM_EVENT_TX_FAILED, command.type);

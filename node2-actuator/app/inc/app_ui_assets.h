@@ -1,8 +1,3 @@
-/**
- * @file app_ui_assets.h
- * @brief Rasterized fonts, icons and gauge masks used by the display renderer.
- */
-
 #ifndef APP_UI_ASSETS_H
 #define APP_UI_ASSETS_H
 

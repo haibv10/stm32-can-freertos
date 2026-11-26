@@ -1,8 +1,3 @@
-/**
- * @file app_cfg.h
- * @brief FreeRTOS task priorities, stack sizes and application timing constants.
- */
-
 #ifndef APP_CFG_H
 #define APP_CFG_H
 
