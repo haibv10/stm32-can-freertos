@@ -1,8 +1,3 @@
-/**
- * @file app_ipc.h
- * @brief Application queue handles, message types and queue allocation.
- */
-
 #ifndef APP_IPC_H
 #define APP_IPC_H
 
@@ -51,7 +46,6 @@ typedef enum {
     MODEM_EVENT_TX_FAILED
 } ModemEventType_t;
 
-/* command is AT_CMD_NONE for unsolicited modem output received while no command was pending. */
 typedef struct {
     ModemEventType_t type;
     AtCommandType_t command;
@@ -63,10 +57,6 @@ extern QueueHandle_t xAlarmQueue;
 extern QueueHandle_t xAtCmdQueue;
 extern QueueHandle_t xModemEventQueue;
 
-/**
- * @brief Create the FreeRTOS queues used to exchange application data.
- * @return true if all required queues were created; false on allocation failure.
- */
 bool app_ipc_init(void);
 
 #endif

@@ -1,8 +1,3 @@
-/**
- * @file task_dht11.c
- * @brief DHT11 sampling and fault reporting for each requested cycle.
- */
-
 #include "task_dht11.h"
 
 #include "task.h"
@@ -13,10 +8,6 @@
 
 static TaskHandle_t xDht11TaskHandle = NULL;
 
-/**
- * @brief Read DHT11 on request and report the retained reading and sample validity.
- * @param[in] pvParameters Unused task argument; task creation passes NULL.
- */
 static void prvDht11Task(void *pvParameters) {
     (void)pvParameters;
 
@@ -34,7 +25,6 @@ static void prvDht11Task(void *pvParameters) {
             .humidity_pct = reading.humidity_pct,
             .valid = valid,
         };
-        /* A full queue means CAN_TX gave up on this cycle; the sample is dropped. */
         (void)xQueueSend(xDht11Queue, &sample, pdMS_TO_TICKS(SENSOR_RESULT_TIMEOUT_MS));
     }
 }
